@@ -1,0 +1,8 @@
+SYSFLAGS=-g -O2 -Wall
+WINFLAGS=-DWINDOWING -I/usr/X11R6/include 
+WINLIBS=-L/usr/X11R6/lib -lX11
+MATHLIB=-lm
+TIME=time
+TIFFVIEWER=viewer
+EXPORTSYMBOLS=-export-symbols
+

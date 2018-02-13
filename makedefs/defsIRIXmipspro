@@ -1,0 +1,6 @@
+SYSFLAGS =-n32 -mips4 -O2 -OPT:Olimit=10000 -Xcpluscomm -Dinline="" -fullwarn -woff 3201
+WINFLAGS =-DWINDOWING
+WINLIBS= -lX11
+MATHLIB= -lm
+TIME=time
+TIFFVIEWER=viewer

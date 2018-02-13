@@ -1,0 +1,8 @@
+SYSFLAGS=-g -Wall -O2
+WINFLAGS =-DWINDOWING
+WINLIBS=-framework AppKit
+MATHLIB=
+EXE=
+TIME=time
+OBJC=-ObjC
+TIFFVIEWER=open

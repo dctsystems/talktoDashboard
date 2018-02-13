@@ -1,0 +1,15 @@
+SYSFLAGS=-g -O3 -Wall
+WINFLAGS=-DWINDOWING -I/usr/X11R6/include 
+WINLIBS=-L/usr/X11R6/lib -lX11
+MATHLIB=-ldl -lm
+EXRLIB=-lIlmImf -lHalf -lIex  -lstdc++ -lz
+THREADFLAG=-pthread
+THREADLIB=-lpthread
+TIME=time
+TIFFVIEWER=viewer
+EXPORTSYMBOLS=-rdynamic
+CCLINK=cc
+AR=ar cr
+RANLIB=ranlib
+
+

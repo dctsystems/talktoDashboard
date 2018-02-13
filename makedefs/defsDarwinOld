@@ -1,0 +1,11 @@
+CCLINK=g++
+SYSFLAGS= -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc -arch i686 -arch x86_64 -O2 -g -Wall -Dunix -DDARWIN
+WINFLAGS=
+WINLIBS=
+MATHLIB= -lm
+EXRLIB=-lIlmImf -lHalf -lIex  -lstdc++ -lz
+TIME=time
+TIFFVIEWER=open
+EXPORTSYMBOLS=
+#OBJC=-ObjC
+

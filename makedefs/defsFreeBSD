@@ -1,0 +1,13 @@
+CCLINK=cc
+RANLIB=ranlib
+AR=ar cr
+SYSFLAGS=-O2 -g -Wall
+WINFLAGS=-DWINDOWING -I/usr/X11R6/include 
+WINLIBS= -L/usr/X11R6/lib -lX11
+MATHLIB= -lm
+EXRLIB=-lIlmImf -lHalf -lIex  -lstdc++
+THREADLIB=-lthr
+TIME=time
+TIFFVIEWER=viewer
+EXPORTSYMBOLS=-export-dynamic
+

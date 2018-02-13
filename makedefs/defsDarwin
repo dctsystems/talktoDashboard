@@ -1,0 +1,14 @@
+CCLINK=cc
+CC=cc -x objective-c
+AR=libtool -o
+RANLIB=echo 
+SYSFLAGS=-O2 -g -Wall -Dunix -DDARWIN  
+WINFLAGS=-DWINDOWING
+WINLIBS=-framework Cocoa
+MATHLIB= -lm
+EXRLIB=-lIlmImf -lHalf -lIex  -lstdc++ -lz
+TIME=time
+TIFFVIEWER=open
+EXPORTSYMBOLS=
+#OBJC=-ObjC
+

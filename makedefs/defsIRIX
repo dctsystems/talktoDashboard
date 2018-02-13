@@ -1,0 +1,8 @@
+SYSFLAGS =-O2 -Wall
+WINFLAGS =-DWINDOWING
+WINLIBS= -lX11
+MATHLIB= -lm
+TIME=time
+TIFFVIEWER=viewer
+CC=/usr/freeware/bin/gcc -mips4 -mcpu=r5000
+EXRLIB=-lIlmImf -lHalf -lIex -lz  -lstdc++

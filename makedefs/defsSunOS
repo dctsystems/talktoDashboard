@@ -1,0 +1,9 @@
+SYSFLAGS=-g -O2 -Wall
+WINFLAGS=-DWINDOWING -I/usr/X11R6/include 
+WINLIBS=-L/usr/X11R6/lib -lX11
+MATHLIB=-lsocket -ldl -lm
+#EXRLIB=-lIlmImf -lHalf -lIex  -lstdc++ -lz
+TIME=time
+TIFFVIEWER=viewer
+EXPORTSYMBOLS=-rdynamic
+CC=gcc
