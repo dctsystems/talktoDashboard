@@ -7,6 +7,8 @@
 #
 #
 
+TARGET=clock
+
 include ../../makedefs/defs${PLATFORM}
 
 
@@ -19,16 +21,23 @@ CFLAGS= ${SYSFLAGS} ${WINFLAGS} ${INCLUDES}
 loop :
 	make PLATFORM=`uname` all
 
-all:	clock 
-	(cd ../../LIVE;../apps/clock/clock)
+all:	${TARGET} ${TARGET}-large
+	(cd ../../LIVE;../apps/${TARGET}/${TARGET})
 
 
-clock : clock.o
-	${CCLINK} ${CFLAGS} -o clock \
-		clock.o\
+${TARGET} : ${TARGET}.o
+	${CCLINK} ${CFLAGS} -o ${TARGET} \
+		${TARGET}.o\
 		${LIBS} ${WINLIBS} ${MATHLIB}
 
+${TARGET}-large : ${TARGET}-large.o
+	${CCLINK} ${CFLAGS} -o ${TARGET}-large \
+		${TARGET}-large.o\
+		${LIBS} ${WINLIBS} ${MATHLIB}
+
+${TARGET}-large.o : ${TARGET}.c
+	${CC} ${CFLAGS} -DLARGE -c ${TARGET}.c -o ${TARGET}-large.o
 clean :
-	rm -f *.o *.exe clock
+	rm -f *.o *.exe ${TARGET}
 
 
