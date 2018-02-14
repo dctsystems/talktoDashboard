@@ -22,7 +22,14 @@
 #include <PixDrawing.h>
 #include <PixFileIO.h>
 
+#ifdef INAWINDOW
 #include "Windowing.h"
+#else
+#include "framebuffer.h"
+#define windowInit FBwindowInit
+#define screenDraw FBscreenDraw
+#endif
+
 
 #define BlockSizeX 320
 #define BlockSizeY 180
@@ -194,6 +201,7 @@ int main(int argc, char*argv[])
     
 	while(!UserQuit)
 		{
+#ifdef INAWINDOW
 		struct NCCAEvent_t event;
 		event=catchEvents(0);
 
@@ -202,11 +210,14 @@ int main(int argc, char*argv[])
 
 		if(event.type==EVENTTYPE_QUIT)
 			UserQuit=1;
+#endif
 
         drawGrid();
         garbageCollect();
         scan();
         screenDraw(imgWindow,frameBuffer);
-		}
+
+	usleep(100000);
+	}
 	return 0;
 }

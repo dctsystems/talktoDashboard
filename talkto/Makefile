@@ -28,9 +28,9 @@ clock : clock.o
 		clock.o\
 		${LIBS} ${WINLIBS} ${MATHLIB}
 
-talkto : talkto.o
+talkto : talkto.o framebuffer.o
 	${CCLINK} ${CFLAGS} -o talkto \
-		talkto.o\
+		talkto.o framebuffer.o\
 		${LIBS} ${WINLIBS} ${MATHLIB}
 
 clean :
