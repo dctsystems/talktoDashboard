@@ -1,0 +1,11 @@
+To dusable screen blanking edit:
+
+/etc/kbd/config
+
+BLANK_TIME=0
+POWERDOWN_TIME=0 
+
+Then:
+
+sudo /etc/init.d/kbd restart
+
