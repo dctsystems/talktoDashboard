@@ -19,14 +19,9 @@ CFLAGS= ${SYSFLAGS} ${WINFLAGS} ${INCLUDES}
 loop :
 	make PLATFORM=`uname` all
 
-all:	talkto clock 
-	./talkto 1.jpg
+all:	talkto 
+	./talkto
 
-
-clock : clock.o
-	${CCLINK} ${CFLAGS} -o clock \
-		clock.o\
-		${LIBS} ${WINLIBS} ${MATHLIB}
 
 talkto : talkto.o framebuffer.o
 	${CCLINK} ${CFLAGS} -o talkto \
@@ -34,6 +29,6 @@ talkto : talkto.o framebuffer.o
 		${LIBS} ${WINLIBS} ${MATHLIB}
 
 clean :
-	rm -f *.o *.exe talkto clock
+	rm -f *.o *.exe talkto 
 
 
