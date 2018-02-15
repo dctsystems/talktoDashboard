@@ -19,6 +19,7 @@
 #include <NCCAPixmap.h>
 #include <PixDrawing.h>
 #include <PixBlit.h>
+#include <PixText.h>
 #include <PixFileIO.h>
 
 #ifdef LARGE
@@ -41,8 +42,8 @@ int main(int argc, char*argv[])
     char tmpFilename[1024];
     char realFilename[1024];
     int pid=getpid();
-    sprintf(tmpFilename,"X%d.jpg",pid);
-    sprintf(realFilename,"%d.jpg",pid);
+    sprintf(tmpFilename,"/tmp/LIVE/X%d.jpg",pid);
+    sprintf(realFilename,"/tmp/LIVE/%d.jpg",pid);
 
 	img=newPixmap(WIDTH,HEIGHT,3,8);
 	if(img.data==NULL)
@@ -96,7 +97,11 @@ int main(int argc, char*argv[])
 
 #ifdef LARGE
 	//Put time across bottom in large mode?
-	//strftime(SS_clockValue, 20, "%d/%m/%Y", time_info);
+	char dateString[1024];
+	selectFont(DCTFonts[4]);
+	strftime(dateString, 20, "%d/%m/%Y", time_info);
+	int w=stringWidth(dateString);
+	blitString(img,dateString,WIDTH/2-w/2,HEIGHT-50,c);
 #endif
         savePixmap(img,tmpFilename);
         //Needed to so that the write is atomic!

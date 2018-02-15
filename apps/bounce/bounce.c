@@ -34,8 +34,8 @@ int main(int argc, char*argv[])
     char tmpFilename[1024];
     char realFilename[1024];
     int pid=getpid();
-    sprintf(tmpFilename,"X%d.jpg",pid);
-    sprintf(realFilename,"%d.jpg",pid);
+    sprintf(tmpFilename,"/tmp/LIVE/X%d.jpg",pid);
+    sprintf(realFilename,"/tmp/LIVE/%d.jpg",pid);
 
 	img=newPixmap(WIDTH,HEIGHT,3,8);
 	if(img.data==NULL)

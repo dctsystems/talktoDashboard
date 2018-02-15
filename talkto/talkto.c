@@ -42,7 +42,7 @@
 #define BlocksY 5
 #endif
 
-#define DIRECTORY "/home/ian/dev/LIVE"
+#define DIRECTORY "/tmp/LIVE"
 
 int blockPID[BlocksX][BlocksY];
 NCCAPixmap frameBuffer;

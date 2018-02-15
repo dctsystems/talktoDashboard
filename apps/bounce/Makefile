@@ -22,7 +22,7 @@ loop :
 	make PLATFORM=`uname` all
 
 all:	${TARGET} ${TARGET}-large
-	(cd ../../LIVE;../apps/${TARGET}/${TARGET})
+	./${TARGET}
 
 
 ${TARGET} : ${TARGET}.o

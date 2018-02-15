@@ -7,7 +7,7 @@
 #
 #
 
-TARGET=clock
+TARGET=cheerlights
 
 include ../../makedefs/defs${PLATFORM}
 
@@ -38,6 +38,6 @@ ${TARGET}-large : ${TARGET}-large.o
 ${TARGET}-large.o : ${TARGET}.c
 	${CC} ${CFLAGS} -DLARGE -c ${TARGET}.c -o ${TARGET}-large.o
 clean :
-	rm -f *.o *.exe ${TARGET}
+	rm -f *.o *.exe ${TARGET} ${TARGET}-large
 
 
