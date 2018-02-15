@@ -201,7 +201,7 @@ int main(int argc, char*argv[])
     
 	while(!UserQuit)
 		{
-#ifdef INAWINDOW
+#ifdef WINDOWING
 		struct NCCAEvent_t event;
 		event=catchEvents(0);
 
