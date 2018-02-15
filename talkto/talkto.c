@@ -22,7 +22,7 @@
 #include <PixDrawing.h>
 #include <PixFileIO.h>
 
-#ifdef INAWINDOW
+#ifdef WINDOWING
 #include "Windowing.h"
 #else
 #include "framebuffer.h"

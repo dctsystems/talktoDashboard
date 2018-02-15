@@ -1,3 +1,5 @@
+#ifndef WINDOWING
+//This is only for non-windowed versions on Linux
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -130,3 +132,4 @@ for(y=0;y<h;y++)
 	}
 }
 
+#endif
