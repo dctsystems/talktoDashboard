@@ -80,6 +80,12 @@ void draw(int pid,char *filename)
     NCCAPixmap img;
     //printf("draw %s \n",filename);
     img=loadPixmap(filename);
+    int imgW=(img.width+(BlockSizeX-1))/BlockSizeX;
+    int imgH=(img.height+(BlockSizeY-1))/BlockSizeY;
+    //Just in case its not an exact block size...
+    int xPos=BlockSizeX*imgW*0.5-img.width*0.5;
+    int yPos=BlockSizeY*imgH*0.5-img.height*0.5;
+
     if(img.data==NULL)
     {
         //This can happen - we have a race condition, when files are deleted just afer they're scanned
@@ -94,15 +100,15 @@ void draw(int pid,char *filename)
            {
                if(blockPID[x][y]==pid)
                {
-                   pixmapInsert(img,x*BlockSizeX,y*BlockSizeY,frameBuffer);
+	 	   xPos+=x*BlockSizeX;
+	 	   yPos+=y*BlockSizeY;
+                   pixmapInsert(img,xPos,yPos,frameBuffer);
                    destroyPixmap(img);
                    return;
                }
            }
 
     //Stage 2 - find a new space big enough...
-    int imgW=(img.width+(BlockSizeX-1))/BlockSizeX;
-    int imgH=(img.height+(BlockSizeY-1))/BlockSizeY;
 
     for(y=0;y<BlocksY+1-imgH;y++)
         for(x=0;x<BlocksX+1-imgW;x++)
@@ -118,7 +124,9 @@ void draw(int pid,char *filename)
                 for(deltaX=0;deltaX<imgW;deltaX++)
                     for(deltaY=0;deltaY<imgH;deltaY++)
                         blockPID[x+deltaX][y+deltaY]=pid;
-                pixmapInsert(img,x*BlockSizeX,y*BlockSizeY,frameBuffer);
+	 	   xPos+=x*BlockSizeX;
+	 	   yPos+=y*BlockSizeY;
+                   pixmapInsert(img,xPos,yPos,frameBuffer);
                 destroyPixmap(img);
                 //printf("draw %s at %d,%d\n",filename,x,y);
                 return;

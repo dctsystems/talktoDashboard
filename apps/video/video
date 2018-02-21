@@ -1,0 +1,29 @@
+echo $$
+DIR=/tmp/LIVE/X$$
+mkdir /tmp/LIVE/X$$
+avconv -loglevel panic \
+	-i $HOME/Prelude.mp4 \
+	-f image2 \
+	$DIR/%d.jpg \
+	&
+
+#	-s 320x180 \
+#	-r 2
+
+PROC_ID=$!
+
+F=1
+while kill -0 "$PROC_ID" >/dev/null 2>&1;
+do
+	if [ -f $DIR/$F.jpg ]
+	then
+		mv $DIR/$F.jpg /tmp/LIVE/$$.jpg
+		F=`expr $F + 1`
+	else
+		sleep 1
+	fi
+done
+rm -r $DIR
+	
+
+
