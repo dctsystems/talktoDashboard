@@ -1,0 +1,20 @@
+for NAME in *
+do
+	if [ -d $NAME ]
+	then
+		if [ $(( ( RANDOM % 3 ) )) -gt 0  ]
+		then
+			$NAME/$NAME &
+		else
+			$NAME/$NAME-large &
+		fi
+	fi
+
+done
+
+pgrep -P $$
+
+
+sleep 10
+
+kill `pgrep -P $$`
