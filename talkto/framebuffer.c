@@ -67,9 +67,9 @@ Window FBwindowInit(int w, int h, char *title, int flags)
     }
 
     //printf("Original %dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel );
-    if(vinfo.bits_per_pixel != 16)
+    if(vinfo.bits_per_pixel != 16 && vinfo.bits_per_pixel != 32)
 	{
-	fprintf(stderr,"Framebuffer must be in 16 bit mode\n");
+	fprintf(stderr,"%d bit mode framebuffer not supported\n",vinfo.bits_per_pixel);
 	exit(0);
 	}
 
@@ -89,8 +89,6 @@ Window FBwindowInit(int w, int h, char *title, int flags)
 
 void Xframebuffer_setPixel()
 {
-  //uint16_t c=convertFloatColor565();
-  //setPixel565(lastX,lastY,c);
 }
 
 
@@ -111,25 +109,52 @@ if(h>vinfo.yres)
 	w=vinfo.yres;
 
 int x,y;
-for(y=0;y<h;y++)
+
+if(vinfo.bits_per_pixel != 16 && vinfo.bits_per_pixel != 32)
 	{
-	uint8_t *srcptr;
-	uint16_t *destptr;
-	srcptr=img.data+y*3*img.width;
-	destptr=(uint16_t *) (screenbuffer+y*finfo.line_length);
-	for(x=0;x<w;x++)
+	for(y=0;y<h;y++)
 		{
-		uint8_t r=(*(srcptr++))>>3;
-		uint8_t g=(*(srcptr++))>>2;
-		uint8_t b=(*(srcptr++))>>3;
-		uint16_t c=r;
-		c<<=6;
-		c|=g;
-		c<<=5;
-		c|=b;
-		*(destptr++)=c;
+		uint8_t *srcptr;
+		uint16_t *destptr;
+		srcptr=img.data+y*3*img.width;
+		destptr=(uint16_t *) (screenbuffer+y*finfo.line_length);
+		for(x=0;x<w;x++)
+			{
+			uint8_t r=(*(srcptr++))>>3;
+			uint8_t g=(*(srcptr++))>>2;
+			uint8_t b=(*(srcptr++))>>3;
+			uint16_t c=r;
+			c<<=6;
+			c|=g;
+			c<<=5;
+			c|=b;
+			*(destptr++)=c;
+			}
 		}
 	}
+else
+        {
+        for(y=0;y<h;y++)
+                {
+                uint8_t *srcptr;
+                uint32_t *destptr;
+                srcptr=img.data+y*3*img.width;
+                destptr=(uint32_t *) (screenbuffer+y*finfo.line_length);
+                for(x=0;x<w;x++)
+                        {
+                        uint8_t r=(*(srcptr++));
+                        uint8_t g=(*(srcptr++));
+                        uint8_t b=(*(srcptr++));
+                        uint32_t c=r;
+                        c<<=8;
+                        c|=g;
+                        c<<=8;
+                        c|=b;
+                        *(destptr++)=c;
+                        }
+                }
+        }
+
 }
 
 #endif
