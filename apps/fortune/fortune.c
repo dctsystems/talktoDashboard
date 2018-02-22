@@ -86,6 +86,7 @@ int main(int argc, char*argv[])
 		blitString(img,fortuneString,SKIP,y,c);
 		y+=SKIP;
 		}
+	fclose(f);
 
 
         savePixmap(img,tmpFilename);

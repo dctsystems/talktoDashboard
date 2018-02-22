@@ -188,7 +188,7 @@ void scan()
             {
                 char filename[1024];
                 sprintf(filename,"%s/%s",DIRECTORY,dp->d_name);
-                if(pid<1000 || (kill(pid, 0))==0) //We use filenames less than 1000 for testing
+                if(pid<100 || (kill(pid, 0))==0) //We use filenames less than 100 for testing
                     draw(pid,filename);
                 else
                     unlink(filename);
