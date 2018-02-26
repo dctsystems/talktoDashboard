@@ -1,0 +1,11 @@
+for NAME in *
+do
+	if [ -d $NAME ]
+	then
+		echo $NAME
+		cp $NAME/$NAME ../bin
+		cp $NAME/$NAME-large ../bin
+	fi
+done
+
+cp scripts/killall ../bin

@@ -1,0 +1,2 @@
+mkdir /tmp/LIVE
+sudo mount -t tmpfs -o size=16M,mode=777 tmpfs /tmp/LIVE

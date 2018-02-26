@@ -1,7 +1,9 @@
-for NAME in *
+ALL=`ls | sort -R`
+for NAME in $ALL
 do
 	if [ -d $NAME ]
 	then
+		echo $NAME
 		if [ $(( ( RANDOM % 3 ) )) -gt 0  ]
 		then
 			$NAME/$NAME &
@@ -15,6 +17,6 @@ done
 pgrep -P $$
 
 
-sleep 10
+#sleep 10
 
-kill `pgrep -P $$`
+#kill `pgrep -P $$`

@@ -1,4 +1,5 @@
-/sbin/mk2efs -q -m0 /dev/ram0
+mkdir /tmp/LIVE
+/sbin/mke2fs -q -m0 /dev/ram0
 /bin/mount /dev/ram0 /tmp/LIVE
 chmod 777 /tmp/LIVE
 

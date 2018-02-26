@@ -1,0 +1,16 @@
+APPSBIN=../bin
+
+mosquitto_sub -t xxx |
+(
+while read CMDLINE
+do
+		echo WGOT $CMDLINE
+		CMDLINE=`echo $CMDLINE | tr '\./.' '-'`
+		CMD=$(set -- $CMDLINE ; echo $1)
+		echo RUN $CMD	
+		if [ -f $APPSBIN/$CMD ]
+		then
+			$APPSBIN/$CMD &
+		fi
+done
+)

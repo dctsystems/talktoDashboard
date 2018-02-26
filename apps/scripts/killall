@@ -1,0 +1,8 @@
+for i in /tmp/LIVE/[0-9]*.jpg
+do
+	PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
+	kill $PID
+done
+
+sleep 1
+rm -rf /tmp/LIVE/*
