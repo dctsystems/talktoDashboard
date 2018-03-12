@@ -52,6 +52,10 @@ int main(int argc, char*argv[])
     float deltaStartY=4.1;
     float deltaEndX=-2.6;
     float deltaEndY=-1.88;
+    NCCAPixel bg={0.0,0.0,0.0,1};
+    NCCAPixel fg={1,0,0,1};
+    NCCAPixel deltaFg={0.01,0.02,0.015,0.0};
+    NCCAPixel deltaBg={0.01,0.02,0.015,0.0};
 
 #ifdef LARGE
 	deltaStartX*=2;
@@ -61,24 +65,36 @@ int main(int argc, char*argv[])
 #endif
     while(1)
     {
-        NCCAPixel c;
-        c.a=1;
 
 	if(random()%100==1)
-	{
-	int x,y;
-        c.r=0.1;
-        c.g=0.8;
-        c.b=0.8;
-	for(x=0;x<WIDTH;x++)
-		for(y=0;y<HEIGHT;y++)
-			{
-			setPixelColor(img,x,y,c);
-			}
-	}
-        c.r=1;
-        c.g=0;
-        c.b=0;
+		{
+		int x,y;
+		for(x=0;x<WIDTH;x++)
+			for(y=0;y<HEIGHT;y++)
+				{
+				setPixelColor(img,x,y,bg);
+
+				}
+		bg.r+=deltaBg.r;
+		if(bg.r<0 || bg.r>1)
+			deltaBg.r*=-1;
+		bg.g+=deltaBg.g;
+		if(bg.g<0 || bg.g>1)
+			deltaBg.g*=-1;
+		bg.b+=deltaBg.b;
+		if(bg.b<0 || fg.b>1)
+			deltaBg.b*=-1;
+		}
+
+        fg.r+=deltaFg.r;
+	if(fg.r<0 || fg.r>1)
+		deltaFg.r*=-1;
+        fg.g+=deltaFg.g;
+	if(fg.g<0 || fg.g>1)
+		deltaFg.g*=-1;
+        fg.b+=deltaFg.b;
+	if(fg.b<0 || fg.b>1)
+		deltaFg.b*=-1;
 
 
 
@@ -98,16 +114,13 @@ int main(int argc, char*argv[])
         if(endY<0 || endY>HEIGHT)
                 deltaEndY*=-1;
 
-	drawLine(img,startX,startY,endX,endY,c);
+	drawLine(img,startX,startY,endX,endY,fg);
 
 
-        c.r=0;
-        c.g=0;
-        c.b=0.6;
-	drawLine(img,0,0,WIDTH-1,0,c);
-	drawLine(img,WIDTH-1,0,WIDTH-1,HEIGHT-1,c);
-	drawLine(img,WIDTH-1,HEIGHT-1,0,HEIGHT-1,c);
-	drawLine(img,0,HEIGHT-1,0,0,c);
+	drawLine(img,0,0,WIDTH-1,0,fg);
+	drawLine(img,WIDTH-1,0,WIDTH-1,HEIGHT-1,fg);
+	drawLine(img,WIDTH-1,HEIGHT-1,0,HEIGHT-1,fg);
+	drawLine(img,0,HEIGHT-1,0,0,fg);
 
         savePixmap(img,tmpFilename);
 

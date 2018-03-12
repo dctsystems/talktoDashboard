@@ -3,9 +3,16 @@ do
 	if [ -d $NAME ]
 	then
 		echo $NAME
-		cp $NAME/$NAME ../bin
-		cp $NAME/$NAME-large ../bin
+
+		if [ -f $NAME/$NAME ]
+		then
+			cp $NAME/$NAME ../bin
+		fi
+
+		if [ -f $NAME/$NAME-large ]
+		then
+			cp $NAME/$NAME-large ../bin
+		fi
 	fi
 done
 
-cp scripts/killall ../bin

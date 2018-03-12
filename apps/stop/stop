@@ -1,0 +1,32 @@
+if [ $# -lt 1 ]
+then
+	echo Usage: stop cmd
+	exit 1
+fi
+
+if ls /tmp/LIVE/[0-9]*.jpg >/dev/null 2>/dev/null
+then
+	TARGET=$1
+	if [ $TARGET = all ]
+	then
+		for i in /tmp/LIVE/[0-9]*.jpg
+		do
+			PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
+			kill $PID
+		done
+
+		sleep 1
+		rm -rf /tmp/LIVE/*
+	else
+		for i in /tmp/LIVE/[0-9]*.jpg
+		do
+			PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
+			ps $PID | grep -q $TARGET 
+			if [ $? -eq 0 ] 
+			then
+				kill $PID
+				exit 0
+			fi
+		done
+	fi
+fi

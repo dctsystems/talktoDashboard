@@ -1,16 +1,49 @@
+SERVERINFO=LOCAL
+SERVERINFO=$HOME/AWSIoT
+
+HOST=localhost
+TOPIC=dashboard
+
 APPSBIN=../bin
 
-mosquitto_sub -t xxx |
+if [ -d $SERVERINFO ]
+then
+	HOST=`cat $SERVERINFO/host`
+	AUTH="--cert $SERVERINFO/dashboard.cert.pem --key $SERVERINFO/dashboard.private.key --cafile $SERVERINFO/root-CA.crt -p 8883"
+fi
+set -f
+
+mosquitto_sub $AUTH -h $HOST -t $TOPIC |
 (
 while read CMDLINE
 do
-		echo WGOT $CMDLINE
-		CMDLINE=`echo $CMDLINE | tr '\./.' '-'`
+		echo $CMDLINE
+		CMDLINE=`echo $CMDLINE | tr '\./.()#*?' '-'`
+
+		#Extract first word
 		CMD=$(set -- $CMDLINE ; echo $1)
-		echo RUN $CMD	
+		if [ $CMD = run ]
+		then
+			#if 1st word is run then ignore it
+			CMDLINE=$(set -- $CMDLINE; shift ; echo $*)
+			CMD=$(set -- $CMDLINE ; echo $1)
+		fi
+
+		
+		PARAMS=$(set -- $CMDLINE; shift ; echo $*)
+		#extract first parameter
+		FIRSTPARAM=$(set -- $PARAMS ; echo $1)
+		if [ X$FIRSTPARAM = Xlarge ]
+		then
+			#if first param is large then join it to command name
+			PARAMS=$(set -- $PARAMS; shift ; echo $*)
+			CMD=$CMD-large
+		fi
+
 		if [ -f $APPSBIN/$CMD ]
 		then
-			$APPSBIN/$CMD &
+			echo RUN $CMD	
+			$APPSBIN/$CMD $PARAMS &
 		fi
 done
 )

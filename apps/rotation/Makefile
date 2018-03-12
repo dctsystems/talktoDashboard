@@ -7,7 +7,7 @@
 #
 #
 
-TARGET=fortune
+TARGET=rotation
 
 include ../../makedefs/defs${PLATFORM}
 

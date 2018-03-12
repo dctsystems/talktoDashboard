@@ -1,0 +1,17 @@
+Create a device ito use Amazon AWS as your MQTT server, set up a device called dashboard
+in AWS IoT and download the starter package
+
+From this you need to copy the files:
+
+dashboard.cert.pem 
+dashboard.private.key
+root-CA.crt
+
+into the folder $HOME/AWSIoT (or just rename the package to that)
+
+You'll also need to find the hostname (something like XXXXXXXXXX.iot.us-west-2.amazonaws.com). It's probably
+in the start.sh file. Create a new file called "host" and place this as a single line of text.
+Add the hosted file to  in the AWSIoT folder.
+
+If the AWSIoT folder exists then listen will use the AWS broker and authentication. Otherwise it will try
+and connect to a broker on the local machine

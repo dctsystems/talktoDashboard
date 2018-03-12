@@ -7,7 +7,7 @@
 #
 #
 
-TARGET=fortune
+TARGET=button
 
 include ../../makedefs/defs${PLATFORM}
 

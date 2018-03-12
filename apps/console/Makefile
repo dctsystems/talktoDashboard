@@ -7,7 +7,7 @@
 #
 #
 
-TARGET=fortune
+TARGET=console
 
 include ../../makedefs/defs${PLATFORM}
 
