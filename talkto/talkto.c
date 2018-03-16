@@ -57,6 +57,7 @@ void resetAll()
 
 void garbageCollect()
 {
+    //Free up areas of the screen which don't have image files any more
     int x,y;
     for(y=0;y<BlocksY;y++)
         for(x=0;x<BlocksX;x++)
@@ -68,6 +69,9 @@ void garbageCollect()
                 if( access( filename, F_OK ) ==0 )
                     continue;
                 sprintf(filename,"%s/%d.tiff",DIRECTORY,blockPID[x][y]);
+                if( access( filename, F_OK ) ==0 )
+                    continue;
+                sprintf(filename,"%s/%d.bmp",DIRECTORY,blockPID[x][y]);
                 if( access( filename, F_OK ) ==0 )
                     continue;
                 blockPID[x][y]=0;

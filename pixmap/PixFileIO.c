@@ -651,177 +651,16 @@ static void saveEXR(NCCAPixmap p,char * filename)
 #endif
 }
 
-#include <gif_lib.h>
 
 NCCAPixmap loadGIF(char *filename)
 {
-NCCAPixmap newPix;
-GifFileType *gifFile=DGifOpenFileName(filename);
-GifRecordType recordType;
-ColorMapObject *ColorMap;
-
-
-if(gifFile==NULL)
-	{
-        PrintGifError();
-	newPix.data=0;
-	newPix.width=0;
-	newPix.height=0;
-	newPix.bps=0;
-	newPix.spp=0;
-	return newPix;
-	}
-
-ColorMap = (gifFile->Image.ColorMap ? gifFile->Image.ColorMap :
-				       gifFile->SColorMap);
-newPix=newPixmap(gifFile->SWidth,gifFile->SHeight,4,8);
-    do {
-    if (DGifGetRecordType(gifFile, &recordType) == GIF_ERROR) {
-	    PrintGifError();
-	    return newPix;
-	    }
-    if(recordType==IMAGE_DESC_RECORD_TYPE)
-		{
-		int Row,Col,Width,Height;
-		GifPixelType *lineBuf;
-		if (DGifGetImageDesc(gifFile) == GIF_ERROR) {
-			    PrintGifError();
-			    return newPix;
-			}
-		Row = gifFile->Image.Top;
-		Col = gifFile->Image.Left;
-		Width = gifFile->Image.Width;
-		Height = gifFile->Image.Height;
-		lineBuf=malloc(Width*sizeof(GifPixelType));
-		if (gifFile->Image.Interlace) {
-			puts("interlace unsupported");
-			/*
-		    for (count = i = 0; i < 4; i++)
-			for (j = InterlacedOffset[i]; j < Row + Height;
-						 j += InterlacedJumps[i]) {
-			        if (DGifGetLine(gifFile, lineBuf,Width) == GIF_ERROR) {
-					PrintGifError();
-					exit(EXIT_FAILURE);
-					}
-			    }
-			*/
-		    }
-		else {
-		    int i;
-		    for (i = 0; i < Height; i++) {
-			int j;
-			if (DGifGetLine(gifFile, lineBuf,Width) == GIF_ERROR) {
-				    PrintGifError();
-				    exit(EXIT_FAILURE);
-				    }
-			for(j=0;j<Width;j++)
-				{
-				NCCAPixel color;
-				GifPixelType p=lineBuf[j];
-				color.r=ColorMap->Colors[p].Red/255.0;
-				color.g=ColorMap->Colors[p].Green/255.0;
-				color.b=ColorMap->Colors[p].Blue/255.0;
-				color.a=1;
-				setPixelColor(newPix,Col+j,Row+i,color);
-				}
-		        }
-
-		    }
-		free(lineBuf);
-		}
-    else if(recordType==EXTENSION_RECORD_TYPE)
-		{
-		/* Skip any extension blocks in file: */
-		int extCode;
-		GifByteType *extension;
-		if (DGifGetExtension(gifFile, &extCode, &extension) == GIF_ERROR) {
-		    PrintGifError();
-		    return newPix;
-		    }
-		while (extension != NULL) {
-		    if (DGifGetExtensionNext(gifFile, &extension) == GIF_ERROR) {
-			PrintGifError();
-		        return newPix;
-		        }
-		    };
-		}
-	}
-    while (recordType != TERMINATE_RECORD_TYPE);
-
-
-
-    if (DGifCloseFile(gifFile) == GIF_ERROR) {
-	PrintGifError();
-	}
-return newPix;
+NCCAPixmap p;
+p.data=NULL;
+return p;
 }
 
 void saveGIF (NCCAPixmap p, char * filename)
-{
-ColorMapObject *OutputColorMap;
-GifByteType *OutputBuffer = (GifByteType *) malloc(p.width * p.height * sizeof(GifByteType));
-GifByteType *RedBuffer = (GifByteType *) malloc(p.width * p.height * sizeof(GifByteType));
-GifByteType *GreenBuffer = (GifByteType *) malloc(p.width * p.height * sizeof(GifByteType));
-GifByteType *BlueBuffer = (GifByteType *) malloc(p.width * p.height * sizeof(GifByteType));
-int expNumOfColors=8;
-int colorMapSize=1<<expNumOfColors;
-int x,y,i;
-i=0;
-for(y=0;y<p.height;y++)
-	for(x=0;x<p.width;x++)
-		{
-		NCCAPixel pix=getPixelColor(p,x,y);
-		RedBuffer[i]=pix.r*255;
-		GreenBuffer[i]=pix.g*255;
-		BlueBuffer[i]=pix.b*255;
-		i++;
-		}
-OutputColorMap = MakeMapObject(colorMapSize, NULL);
-QuantizeBuffer(p.width, p.height, &colorMapSize,
-		       RedBuffer, GreenBuffer, BlueBuffer,
-		       OutputBuffer, OutputColorMap->Colors);
-    {
-    GifFileType *gifFile;
-    GifByteType *Ptr = OutputBuffer;
-
-    if ((gifFile = EGifOpenFileName(filename,0)) == NULL)
-	{
-	PrintGifError();
-	return;
-	}
-
-    if (EGifPutScreenDesc(gifFile,
-			  p.width, p.height, expNumOfColors, 0,
-			  OutputColorMap) == GIF_ERROR ||
-	EGifPutImageDesc(gifFile, 0, 0, p.width, p.height, FALSE, NULL) == GIF_ERROR)
-	{
-	PrintGifError();
-	return;
-	}
-
-    for (i = 0; i < p.height; i++) {
-	if (EGifPutLine(gifFile, Ptr, p.width) == GIF_ERROR)
-		{
-		PrintGifError();
-		return;
-		}
-	Ptr += p.width;
-    }
-
-    if (EGifCloseFile(gifFile) == GIF_ERROR)
-		{
-		PrintGifError();
-		}
-    }
-
-free(OutputBuffer);
-free(RedBuffer);
-free(GreenBuffer);
-free(BlueBuffer);
-FreeMapObject(OutputColorMap);
-return;
-
-}
+{}
 
 #ifdef JPEGSUPPORT
 #include "jpeglib.h"
@@ -1055,6 +894,14 @@ void saveJPG (NCCAPixmap p, char * filename)
 
 static void ReadULShort(FILE *fptr,unsigned short *p)
 	{
+	char tmp;
+	*p=0;
+	fread(&tmp,1,1,fptr);
+	*p|=((unsigned short)tmp)<<0;
+	fread(&tmp,1,1,fptr);
+	*p|=((unsigned short)tmp)<<8;
+	return;
+
 #ifdef BIG_ENDIAN
 	fread(((char *)p+1),1,1,fptr);
 	fread(((char *)p+0),1,1,fptr);
@@ -1065,6 +912,18 @@ static void ReadULShort(FILE *fptr,unsigned short *p)
 
 static void ReadULInt(FILE *fptr,unsigned int *p)
 	{
+        char tmp;
+        *p=0;
+        fread(&tmp,1,1,fptr);
+        *p|=((unsigned int)tmp)<<0;
+        fread(&tmp,1,1,fptr);
+        *p|=((unsigned int)tmp)<<8;
+        fread(&tmp,1,1,fptr);
+        *p|=((unsigned int)tmp)<<16;
+        fread(&tmp,1,1,fptr);
+        *p|=((unsigned int)tmp)<<24;
+        return;
+
 #ifdef BIG_ENDIAN
 	fread(((char *)p+3),1,1,fptr);
 	fread(((char *)p+2),1,1,fptr);

@@ -1,0 +1,97 @@
+make mqtt device make clientid string
+make message string
+make topic string
+
+make networkConnected boolean
+make networkPeer string
+
+make nativeFile device
+make fileData string
+
+make system device
+make command string
+make commandOutput list of strings
+make pid string
+
+make realFilename string
+make tmpFilename string
+
+make image bitmap device
+make displayColor number
+make displayX number
+make displayY number
+make lineStartX number
+make lineStartY number
+
+make angle number
+when drawImage
+.set displayY to 180
+.set displayX to 320
+.set displayColor to 111
+.tell image to "new" 
+.set lineStartX to 160
+.set lineStartY to 90
+.set displayX to 160 + 80*cos of angle
+.set displayY to 90 + 80*sin of angle
+.set displayColor to 777
+.broadcast drawLine and wait
+.
+.set fileData to tmpFilename
+.tell image to "save" 
+.set command to join "mv " join tmpFilename join " " realFilename
+.tell system to "run"
+
+
+when drawLine
+.make dx number
+.make dy number
+.make dz number
+.make steps number
+.
+.set dx to displayX-lineStartX
+.set dy to displayY-lineStartY
+.
+.if abs of dx > abs of dy
+..set steps to abs of dx
+.else
+..set steps to abs of dy
+.
+.set dx to dx/steps
+.set dy to dy/steps
+.
+.set displayX to lineStartX
+.set displayY to lineStartY
+.repeat steps
+..tell image to "setPixel"
+..change displayX by dx
+..change displayY by dy
+.tell image to "setPixel"
+
+
+when start
+.set clientid to "sniffDashboardApp"
+.set networkPeer to "dashboard.local."
+.tell mqtt to "connect"
+.
+.if not networkConnected
+..say "connect failed"
+..stop script
+.say "connected"
+.
+.set command to  "echo $PPID"
+.tell system to "run"
+.set pid to item 1 of commandOutput
+.set tmpFilename to join "/tmp/LIVE/X" join pid ".bmp"
+.set realFilename to join "/tmp/LIVE/" join pid ".bmp"
+.
+.
+.
+.set topic to "#"
+.tell mqtt to "subscribe"
+.
+.forever
+..tell mqtt to "loop"
+..if not message = ""
+...say message
+...set angle to value of message
+...broadcast drawImage and wait
