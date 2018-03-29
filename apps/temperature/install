@@ -1,0 +1,14 @@
+if [ X = X$DASHBIN ]
+then
+	echo BIN DIR NOT DEFINED
+	exit
+fi
+if [ X = X$DASHLIB ]
+then
+	echo LIB DIR NOT DEFINED
+	exit
+fi
+
+#COPY REGULAR VERSION TWICE - it can detect what its name is at runtime
+cp  temperature $DASHBIN/temperature-large
+cp  temperature $DASHBIN/temperature

@@ -1,0 +1,143 @@
+#!/usr/bin/python3
+
+import paho.mqtt.client as mqtt
+import os
+import sys
+from PIL import Image, ImageDraw, ImageFont
+import json
+from collections import deque
+import datetime
+
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
+import numpy as np
+
+count=100
+width=320*2
+height=180*2
+if (sys.argv[0].endswith("-large")):
+    width=320*3
+    height=180*3
+	
+
+json_sensors = json.loads('{"10-000802b42b40" : "hannahs box" , "10-000802b44f21" : "bl1", "10-000802b49201" : "bl2", "10-000802b4b181" : "tsunami", "28-00000720f6e6" : "oscillator left", "28-000007213db1" : "adams box", "28-000007217131" : "spitfire", "28-0000072191f9" : "oscillator right", "28-000007474609" : "table bottom", "28-000007491929" : "table top"}')
+json_sensor_names = json.loads('{ "hannahs box" : "10-000802b42b40", "bl1" : "10-000802b44f21", "bl2" : "10-000802b49201",  "tsunami" : "10-000802b4b181",  "oscillator left" : "28-00000720f6e6", "adams box" : "28-000007213db1",  "spitfire" : "28-000007217131", "oscillator right" : "28-0000072191f9", "table bottom" : "28-000007474609",  "table top" : "28-000007491929"}')
+
+tsunami_id = json_sensor_names['tsunami']
+tsunami_list = deque()
+tsunami_array = []
+
+oscillator_left_id = json_sensor_names['oscillator left']
+oscillator_left_list = deque()
+oscillator_left_array = []
+
+oscillator_right_id = json_sensor_names['oscillator right']
+oscillator_right_list = deque()
+oscillator_right_array = []
+
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, flags, rc):
+    #print("Connected with result code "+str(rc))
+
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+    client.subscribe("rPI_46_1047_1") #temperature feeds
+	#previously subscribes to all topics on the server - use of wildcard
+
+# The callback for when a PUBLISH message is received from the server.
+def on_message(client, userdata, msg):
+    payload=msg.payload.decode("utf-8")
+    #print(msg.topic+":"+payload)
+    
+    json_string = json.loads(payload)
+
+    if(len(tsunami_list) > count):
+        tsunami_list.popleft()
+
+    if(len(oscillator_left_list) > count):
+        oscillator_left_list.popleft()
+
+    if(len(oscillator_right_list) > count):
+        oscillator_right_list.popleft()        
+
+    tsunami_list.append((json_string['timestamp'], json_string[tsunami_id]))
+    oscillator_left_list.append((json_string['timestamp'], json_string[oscillator_left_id]))
+    oscillator_right_list.append((json_string['timestamp'], json_string[oscillator_right_id]))
+
+    tsunami_array = []
+    oscillator_left_array = []
+    oscillator_right_array = []
+
+    for i in range(len(tsunami_list)) :
+        timestamp = tsunami_list[i][0]
+        temperature_tsunami = tsunami_list[i][1]
+        temperature_oscillator_left = oscillator_left_list[i][1]
+        temperature_oscillator_right = oscillator_right_list[i][1]
+
+        timestamp_x = timestamp
+        timestamp_x_time = datetime.datetime.fromtimestamp(timestamp)
+        timestamp_x_label = str(timestamp_x_time.time())[0:5]
+        
+        temperature_tsunami_y = float(temperature_tsunami) / float(1000)
+        temperature_oscillator_left_y = float(temperature_oscillator_left) / float(1000)
+        temperature_oscillator_right_y = float(temperature_oscillator_right) / float(1000)
+
+        tsunami_array.append((timestamp_x_time,temperature_tsunami_y))
+        oscillator_left_array.append((timestamp_x_label,temperature_oscillator_left_y))
+        oscillator_right_array.append((timestamp_x_label,temperature_oscillator_right_y))
+
+        #print(tsunami_array)
+        #print(oscillator_left_array)
+        #print(oscillator_right_array)
+
+    xs = [x[0] for x in tsunami_array]
+    tsunami_ys = [x[1] for x in tsunami_array]
+    oscillator_left_ys = [x[1] for x in oscillator_left_array]
+    oscillator_right_ys = [x[1] for x in oscillator_right_array]
+
+    plt.ioff()
+    fig=plt.figure()
+    DPI = fig.get_dpi()
+    fig.set_size_inches(width/float(DPI),height/float(DPI))
+    plt.plot(xs, tsunami_ys)
+    plt.plot(xs, oscillator_left_ys)
+    plt.plot(xs, oscillator_right_ys)
+    plt.xlabel("Time")
+    plt.ylabel("Temperature")
+    plt.legend(['tsunami', 'oscillator left', 'oscillator right'], loc='upper left')
+    #plt.show()
+    #plt.clf()
+    #plt.cla()
+    plt.savefig(tmpFilename)
+    plt.close(fig)
+    
+    #img.save(tmpFilename)
+    os.rename(tmpFilename, realFilename);
+	
+#define a function which is triggered when a message is received to a specific channel (in this case temperature - rPI_46_1047_1)
+
+
+
+pid = os.getpid()
+realFilename=str(pid)+'.jpg'
+tmpFilename='X'+realFilename
+dir='/tmp/LIVE/'
+realFilename=dir+realFilename
+tmpFilename=dir+tmpFilename
+
+font = ImageFont.load_default()
+
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect("the-firebird.net", 1883, 60)
+
+# Blocking call that processes network traffic, dispatches callbacks and
+# handles reconnecting.
+# Other loop*() functions are available that give a threaded interface and a
+# manual interface.
+client.loop_forever()
+
