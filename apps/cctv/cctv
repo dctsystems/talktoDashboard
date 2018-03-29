@@ -15,7 +15,7 @@ else
 fi
 
 USER=user
-PW=PASSWORD
+PW=SECRET
 
 
 mkdir /tmp/LIVE/X$$
@@ -29,5 +29,7 @@ if [ -f /tmp/LIVE/X$$/$FF.jpg ]
 		mv /tmp/LIVE/X$$/$F.jpg /tmp/LIVE/$$.jpg
 		F=$FF
 		FF=`expr $FF + 1`
+	else
+		sleep 0.1
 	fi
 done
