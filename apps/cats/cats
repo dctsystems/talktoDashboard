@@ -1,0 +1,22 @@
+#!/usr/bin/python
+import os
+from PIL import Image, ImageDraw, ImageFont
+from shutil import copyfile
+from random import randint
+import time
+
+pid = os.getpid()
+realFilename=str(pid)+'.jpg'
+tmpFilename='X'+realFilename
+dir='/tmp/LIVE/'
+realFilename=dir+realFilename
+tmpFilename=dir+tmpFilename
+
+font = ImageFont.load_default()
+
+while True:
+    rand_cat_no = randint(1, 5)
+    cat_filename = os.environ['DASHLIB']+"/catPics/cat-" + str(rand_cat_no) + ".jpg"
+    copyfile(cat_filename, tmpFilename)
+    os.rename(tmpFilename,realFilename)
+    time.sleep(2)

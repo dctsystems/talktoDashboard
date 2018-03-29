@@ -1,0 +1,33 @@
+
+if [ `basename $0` = cctv-large ]
+then
+STREAM=videoMain
+else
+STREAM=videoSub
+fi
+
+if [ $# -gt 0 ]
+then
+	CAM=$1
+	shift
+else
+	CAM=192.168.0.98
+fi
+
+USER=user
+PW=PASSWORD
+
+
+mkdir /tmp/LIVE/X$$
+avconv -loglevel error -i rtsp://$USER:$PW\@$CAM/$STREAM -an -r 10 -f image2 /tmp/LIVE/X$$/'%d.jpg' &
+F=1
+FF=2
+while true
+do
+if [ -f /tmp/LIVE/X$$/$FF.jpg ]
+	then
+		mv /tmp/LIVE/X$$/$F.jpg /tmp/LIVE/$$.jpg
+		F=$FF
+		FF=`expr $FF + 1`
+	fi
+done

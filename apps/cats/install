@@ -1,0 +1,13 @@
+if [ X = X$DASHBIN ]
+then
+	echo BIN DIR NOT DEFINED
+	exit
+fi
+if [ X = X$DASHLIB ]
+then
+	echo LIB DIR NOT DEFINED
+	exit
+fi
+
+cp -r catPics $DASHLIB
+cp -r cats $DASHBIN

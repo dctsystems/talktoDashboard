@@ -1,3 +1,0 @@
-mknod /tmp/LIVE/console p
-./listen >>/tmp/LIVE/console 2>>/tmp/LIVE/console
-

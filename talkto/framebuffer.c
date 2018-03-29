@@ -67,6 +67,11 @@ Window FBwindowInit(int w, int h, char *title, int flags)
     }
 
     //printf("Original %dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel );
+    if(w>vinfo.xres || h>vinfo.yres)
+	{
+	fprintf(stderr,"%dx%d framebuffer required\n",w,h);
+	exit(0);
+	}
     if(vinfo.bits_per_pixel != 16 && vinfo.bits_per_pixel != 32)
 	{
 	fprintf(stderr,"%d bit mode framebuffer not supported\n",vinfo.bits_per_pixel);

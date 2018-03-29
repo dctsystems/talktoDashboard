@@ -1,0 +1,85 @@
+#!/usr/bin/python
+import paho.mqtt.client as mqtt
+import os
+from PIL import Image, ImageDraw, ImageFont
+from stat import *
+
+def cleanString(str):
+	for i in range(0, 96):
+		str = str.replace(chr(i),'')
+	return str
+
+def parseCommand(comm):
+	head,tail = comm.split(':')
+	head = head[2:len(head)-1]
+
+	tail = tail[1:len(tail)-2]
+	tail = tail.lower()
+	tail = cleanString(tail)
+
+	#if S_ISREG(tail) or S_ISREG(tail + "-large"):
+	if head == "display":
+		os.system(bin+"/"+tail+" &")
+		return tail
+	elif head == "large":
+		os.system(bin+"/"+tail+"-large &")
+		return tail
+	elif head == "close":
+		os.system(bin+"/stop "+tail)
+		return tail
+	#else:
+	#	return "ERR: Cannot Find App"
+
+	return "ERR: Unsupported Command"
+
+
+# The callback for when the client receives a CONNACK response from the server.
+def on_connect(client, userdata, flags, rc):
+    #print("Connected with result code "+str(rc))
+
+    # Subscribing in on_connect() means that if we lose the connection and
+    # reconnect then subscriptions will be renewed.
+    client.subscribe("display1")
+
+# The callback for when a PUBLISH message is received from the server.
+def on_message(client, userdata, msg):
+    #print(msg.topic+" "+str(msg.payload))
+	command = parseCommand(msg.payload)
+	if command[0:2] == "ERR":
+		img = Image.new('RGB', (320, 180), 'white')    
+		idraw = ImageDraw.Draw(img)
+		idraw.rectangle((2, 2, 318, 178), fill='red')
+	else:
+		img = Image.new('RGB', (320, 180), 'white')    
+		idraw = ImageDraw.Draw(img)
+		idraw.rectangle((2, 2, 318, 178), fill='blue')
+
+	idraw.text((20, 80), 'Message:'+str(msg.payload), font=font)
+	idraw.text((20, 50), 'Command:'+str(command), font=font)
+
+	img.save(tmpFilename)
+	os.rename(tmpFilename, realFilename);
+
+pid = os.getpid()
+realFilename=str(pid)+'.jpg'
+tmpFilename='X'+realFilename
+dir='/tmp/LIVE/'
+bin=os.environ['DASHBIN']
+print bin
+realFilename=dir+realFilename
+tmpFilename=dir+tmpFilename
+
+font = ImageFont.load_default()
+
+client = mqtt.Client()
+client.on_connect = on_connect
+client.on_message = on_message
+
+client.connect("the-firebird.net", 1883, 60)
+
+
+# Blocking call that processes network traffic, dispatches callbacks and
+# handles reconnecting.
+# Other loop*() functions are available that give a threaded interface and a
+# manual interface.
+client.loop_forever()

@@ -1,17 +1,31 @@
+if [ X = X$DASHBIN ]
+then
+	echo BIN DIR NOT DEFINED
+	exit
+fi
+
 for NAME in *
 do
 	if [ -d $NAME ]
 	then
 		echo $NAME
-
-		if [ -f $NAME/$NAME ]
+		if [ -f $NAME/install ]
 		then
-			cp $NAME/$NAME ../bin
-		fi
+			#There's an install script
+			cd $NAME
+			./install
+			cd ..
+		else
+			#simple install - copy exe and exe-large
+			if [ -f $NAME/$NAME ]
+			then
+				cp $NAME/$NAME $DASHBIN
+			fi
 
-		if [ -f $NAME/$NAME-large ]
-		then
-			cp $NAME/$NAME-large ../bin
+			if [ -f $NAME/$NAME-large ]
+			then
+				cp $NAME/$NAME-large $DASHBIN
+			fi
 		fi
 	fi
 done
