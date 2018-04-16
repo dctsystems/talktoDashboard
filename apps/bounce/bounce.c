@@ -126,7 +126,7 @@ int main(int argc, char*argv[])
 
         //Needed to so that the write is atomic!
         rename(tmpFilename,realFilename);
-        usleep(400000);
+        usleep(200000);
     }
 	return 0;
 }

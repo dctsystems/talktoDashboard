@@ -1,0 +1,2 @@
+Show video stream from an eye netstrem network tuner
+edit script to specifiy correct ip address

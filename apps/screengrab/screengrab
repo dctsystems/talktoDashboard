@@ -1,0 +1,6 @@
+nice_date='+%Y-%m-%d_%H-%M-%S'
+DATE=`date $nice_date`
+#echo $DATE
+
+mkdir -p $HOME/DashboardGrabs/$DATE
+cp /tmp/LIVE/[0-9]* $HOME/DashboardGrabs/$DATE

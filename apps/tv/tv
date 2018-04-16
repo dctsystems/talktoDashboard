@@ -1,0 +1,26 @@
+
+STREAM=http://eyetvnetstreamsat04004696.local./stream/channel1
+
+if [ `basename $0` = tv-large ]
+then
+SIZE="-s 640x360"
+else
+SIZE="-s 320x180"
+fi
+
+
+mkdir /tmp/LIVE/X$$
+avconv -loglevel error -i $STREAM -an -r 10 $SIZE -f image2 /tmp/LIVE/X$$/'%d.jpg' &
+F=1
+FF=2
+while true
+do
+if [ -f /tmp/LIVE/X$$/$FF.jpg ]
+	then
+		mv /tmp/LIVE/X$$/$F.jpg /tmp/LIVE/$$.jpg
+		F=$FF
+		FF=`expr $FF + 1`
+	else
+		sleep 0.1
+	fi
+done

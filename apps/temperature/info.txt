@@ -1,0 +1,4 @@
+Display live temperature data from lab
+
+Uses the matplotlib and python3
+On Pi this is installed using apt-get, rather than pip/pip3

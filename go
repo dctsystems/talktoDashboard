@@ -9,5 +9,8 @@ sudo modprobe bcm2835-v4l2
 export DASHBIN=`pwd`/bin
 export DASHLIB=`pwd`/lib
 
+sudo  sh -c 'clear >/dev/console'
+sudo  sh -c 'setterm -cursor off >/dev/console'
+
 talkto/talkto &
-alexaParser/alexaParser &
+#alexaParser/alexaParser &

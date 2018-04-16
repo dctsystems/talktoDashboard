@@ -1,0 +1,3 @@
+stop a named app, or stop all apps
+Note - to make sure shell scripts stop, include the interpreter path
+as the first line (#!/bin/bash) so "ps" displays their name correctly

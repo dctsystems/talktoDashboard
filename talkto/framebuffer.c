@@ -87,6 +87,7 @@ Window FBwindowInit(int w, int h, char *title, int flags)
               fbfd, 
               0);
   
+  memset(screenbuffer,0,screensize);
   //SN_displayX=vinfo.xres;
   //SN_displayY=vinfo.yres;
   return NULL;
@@ -108,21 +109,25 @@ assert(img.bps==8);
 
 int h=img.height;
 int w=img.width;
+
 if(w>vinfo.xres)
 	w=vinfo.xres;
 if(h>vinfo.yres)
-	w=vinfo.yres;
+	h=vinfo.yres;
+
+int startline=(vinfo.yres-h)/2;
+int startcol=(vinfo.xres-w)/2;
 
 int x,y;
 
-if(vinfo.bits_per_pixel != 16 && vinfo.bits_per_pixel != 32)
+if(vinfo.bits_per_pixel == 16)
 	{
 	for(y=0;y<h;y++)
 		{
 		uint8_t *srcptr;
 		uint16_t *destptr;
 		srcptr=img.data+y*3*img.width;
-		destptr=(uint16_t *) (screenbuffer+y*finfo.line_length);
+		destptr=(uint16_t *) (screenbuffer+(y+startline)*finfo.line_length);
 		for(x=0;x<w;x++)
 			{
 			uint8_t r=(*(srcptr++))>>3;
@@ -136,15 +141,18 @@ if(vinfo.bits_per_pixel != 16 && vinfo.bits_per_pixel != 32)
 			*(destptr++)=c;
 			}
 		}
+	return;
 	}
-else
+
+if(vinfo.bits_per_pixel == 32)
         {
         for(y=0;y<h;y++)
                 {
                 uint8_t *srcptr;
                 uint32_t *destptr;
                 srcptr=img.data+y*3*img.width;
-                destptr=(uint32_t *) (screenbuffer+y*finfo.line_length);
+                destptr=(uint32_t *) (screenbuffer+(y+startline)*finfo.line_length);
+		destptr+=startcol;
                 for(x=0;x<w;x++)
                         {
                         uint8_t r=(*(srcptr++));

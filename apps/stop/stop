@@ -12,6 +12,7 @@ then
 		for i in /tmp/LIVE/[0-9]*.jpg
 		do
 			PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
+			pkill -P $PID
 			kill $PID
 		done
 
@@ -24,6 +25,7 @@ then
 			ps $PID | grep -q $TARGET 
 			if [ $? -eq 0 ] 
 			then
+				pkill -P $PID
 				kill $PID
 				exit 0
 			fi

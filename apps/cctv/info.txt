@@ -1,0 +1,3 @@
+display cctv from a Foscam network camera
+parameter specifies camera hostname/ip address
+edit script to update the password

@@ -1,0 +1,2 @@
+grab a copy of all currently displayed app images
+stores them in $HOME/DashboardGrabs

@@ -1,0 +1,9 @@
+#PYTHON PLOTTING LIBRARY
+sudo apt-get install python3-matplotlib
+
+sudo apt-get install python3-pip
+
+pip install paho-mqtt
+pip3 install paho-mqtt
+
+
