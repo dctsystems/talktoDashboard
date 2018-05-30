@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
+#include <errno.h>
 
 #include <dirent.h>
 
@@ -22,6 +23,7 @@
 #include <PixDrawing.h>
 #include <PixFileIO.h>
 
+
 #ifdef WINDOWING
 #include "Windowing.h"
 #else
@@ -31,16 +33,12 @@
 #endif
 
 
+
 #define BlockSizeX 320
 #define BlockSizeY 180
 
-#ifdef FULLSCREEN
-#define BlocksX 6
-#define BlocksY 6
-#else
 #define BlocksX 4
 #define BlocksY 5
-#endif
 
 #define DIRECTORY "/tmp/LIVE"
 
@@ -192,10 +190,13 @@ void scan()
             {
                 char filename[1024];
                 sprintf(filename,"%s/%s",DIRECTORY,dp->d_name);
-                if(pid<100 || (kill(pid, 0))==0) //We use filenames less than 100 for testing
-                    draw(pid,filename);
-                else
-                    unlink(filename);
+	    	draw(pid,filename);
+                if(pid>100)
+			{
+			int ret=kill(pid, 0);
+			if(ret==-1 && errno==ESRCH)
+			    unlink(filename);
+			}
             }
         }
     closedir(dirPtr);
