@@ -13,7 +13,7 @@ include ../../makedefs/defs${PLATFORM}
 
 
 INCLUDES=-I../../pixmap
-LIBS=  -L../../libs/${PLATFORM} -L/usr/local/lib -lNCCAPixmap -ltiff -lgif -ljpeg ${EXRLIB} 
+LIBS=  -L../../libs/${PLATFORM} -L/usr/local/lib -lNCCAPixmap -ltiff -ljpeg ${EXRLIB} 
 
 CFLAGS= ${SYSFLAGS} ${WINFLAGS} ${INCLUDES} 
 
