@@ -28,15 +28,28 @@
 #define WIDTH 320
 #endif
 
-int main(int argc, char*argv[])
+char tmpFilename[1024];
+char realFilename[1024];
+void dashboardInit()
 {
-	NCCAPixmap img;
-    char tmpFilename[1024];
-    char realFilename[1024];
     int pid=getpid();
     sprintf(tmpFilename,"/tmp/LIVE/X%d.jpg",pid);
     sprintf(realFilename,"/tmp/LIVE/%d.jpg",pid);
+}
+void dashboardShow(NCCAPixmap img)
+{
+        savePixmap(img,tmpFilename);
 
+        //Needed to so that the write is atomic!
+        rename(tmpFilename,realFilename);
+}
+
+
+int main(int argc, char*argv[])
+{
+	dashboardInit();
+
+	NCCAPixmap img;
 	img=newPixmap(WIDTH,HEIGHT,3,8);
 	if(img.data==NULL)
 		{
@@ -122,10 +135,7 @@ int main(int argc, char*argv[])
 	drawLine(img,WIDTH-1,HEIGHT-1,0,HEIGHT-1,fg);
 	drawLine(img,0,HEIGHT-1,0,0,fg);
 
-        savePixmap(img,tmpFilename);
-
-        //Needed to so that the write is atomic!
-        rename(tmpFilename,realFilename);
+	dashboardShow(img);
         usleep(200000);
     }
 	return 0;
