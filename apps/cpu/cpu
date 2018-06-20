@@ -6,6 +6,8 @@ from collections import deque
 import datetime
 import time
 import subprocess
+import socket
+hostname = socket.gethostname()
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -40,7 +42,7 @@ def plotLoad(now,newLoad):
     plt.plot(xs, ys)
     plt.xlabel("Time")
     plt.ylabel("CPU Load")
-    plt.legend(['CPU Load'], loc='upper left')
+    plt.legend([hostname], loc='upper left')
     plt.savefig(tmpFilename)
     plt.close(fig)
     
