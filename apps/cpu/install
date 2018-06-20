@@ -1,0 +1,15 @@
+if [ X = X$DASHBIN ]
+then
+	echo BIN DIR NOT DEFINED
+	exit
+fi
+if [ X = X$DASHLIB ]
+then
+	echo LIB DIR NOT DEFINED
+	exit
+fi
+
+APPNAME=cpu
+#COPY REGULAR VERSION TWICE - it can detect what its name is at runtime
+cp  $APPNAME $DASHBIN/$APPNAME-large
+cp  $APPNAME $DASHBIN/$APPNAME
