@@ -31,7 +31,8 @@ dir='/tmp/LIVE/'
 realFilename=dir+realFilename
 tmpFilename=dir+tmpFilename
 
-font = ImageFont.load_default()
+font = ImageFont.truetype("FreeSans.ttf", 24)
+
 
 client = mqtt.Client()
 client.on_connect = on_connect
