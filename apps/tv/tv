@@ -1,3 +1,4 @@
+#!/bin/bash
 
 STREAM=http://eyetvnetstreamsat04004696.local./stream/channel1
 
