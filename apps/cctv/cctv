@@ -12,11 +12,11 @@ then
 	CAM=$1
 	shift
 else
-	CAM=192.168.0.98
+	CAM=10.0.1.101
 fi
 
 USER=user
-PW=SECRET
+PW=SECRETx1
 
 
 mkdir /tmp/LIVE/X$$

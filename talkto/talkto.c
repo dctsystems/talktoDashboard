@@ -37,12 +37,15 @@
 #define BlockSizeX 320
 #define BlockSizeY 180
 
-#define BlocksX 4
-#define BlocksY 5
+//Limit screen size to 1080p
+#define MAXBLOCKS 6
+int blockPID[MAXBLOCKS][MAXBLOCKS];
+//use 4x4 for testing in Windowed mode
+int BlocksX=4;
+int BlocksY=4;
 
 #define DIRECTORY "/tmp/LIVE"
 
-int blockPID[BlocksX][BlocksY];
 NCCAPixmap frameBuffer;
 
 void resetAll()
@@ -209,7 +212,21 @@ int main(int argc, char*argv[])
 
 	imgWindow=windowInit(BlockSizeX*BlocksX, BlockSizeY*BlocksY,
                          "TalkTo TestMode",NCCA_RESIZE);
-    frameBuffer=newPixmap(BlockSizeX*BlocksX, BlockSizeY*BlocksY,3,8);
+#ifndef WINDOWING
+	//We _REQUESTED_ a screen size, but we probably don't get it...
+	//So check actuall screen size
+	int w=windowWidth(imgWindow);
+	int h=windowHeight(imgWindow);
+	//printf("%d:%d\n",w,h);
+	BlocksX=w/BlockSizeX;
+	BlocksY=h/BlockSizeY;
+	if(BlocksX>MAXBLOCKS)
+		BlocksX=MAXBLOCKS;
+	if(BlocksY>MAXBLOCKS)
+		BlocksY=MAXBLOCKS;
+	//printf("%d:%d\n",BlocksX,BlocksY);
+#endif
+	frameBuffer=newPixmap(BlockSizeX*BlocksX, BlockSizeY*BlocksY,3,8);
     
     
 	while(!UserQuit)

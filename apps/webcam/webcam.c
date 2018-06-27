@@ -64,11 +64,13 @@ static void errno_exit(const char *s)
 #define WIDTH 320
 #endif
 
-
+#define RGB24 0
+#define YUV422 1
 struct Xwebcam_struct
 {
     int width;
     int height;
+    int format; 
 #ifdef __linux
     int fd;
     int index;
@@ -138,6 +140,33 @@ void Xwebcam_init(struct Xwebcam_struct *instance)
 
         if (-1 == xioctl(instance->fd, VIDIOC_S_FMT, &fmt))
                 errno_exit("VIDIOC_S_FMT");
+
+/*
+	printf("%d x %d:%c%c%c%c\n", fmt.fmt.pix.width,fmt.fmt.pix.height,
+		(fmt.fmt.pix.pixelformat>>0)&0xff,
+		(fmt.fmt.pix.pixelformat>>8)&0xff,
+		(fmt.fmt.pix.pixelformat>>16)&0xff,
+		(fmt.fmt.pix.pixelformat>>24)&0xff
+		);
+*/
+	switch(fmt.fmt.pix.pixelformat)
+	{
+	case V4L2_PIX_FMT_RGB24:
+		instance->format=RGB24;
+		break;
+	case V4L2_PIX_FMT_YUYV:
+		instance->format=YUV422;
+		break;
+	default:
+		fprintf(stderr,"Unknown Video Format:%c%c%c%c\n",
+		                (fmt.fmt.pix.pixelformat>>0)&0xff,
+				(fmt.fmt.pix.pixelformat>>8)&0xff,
+				(fmt.fmt.pix.pixelformat>>16)&0xff,
+				(fmt.fmt.pix.pixelformat>>24)&0xff
+			);
+
+		exit(-1);
+	}
 
    
     //Allocate a buffer
@@ -237,6 +266,43 @@ void Xwebcam_update(struct Xwebcam_struct *instance)
 	instance->index=buf.index;
 }
 
+void YUV2RGB(uint8_t y,uint8_t u,uint8_t v,uint8_t *dest)
+{
+   int r,g,b;
+   
+   // u and v are +-0.5
+   int uu =((int)u)-128;
+   int vv =((int)v)-128;
+
+   // Conversion
+   r = y + 1.370705 * vv;
+   g = y - 0.698001 * vv - 0.337633 * uu;
+   b = y + 1.732446 * uu;
+
+/*
+   r = y + 1.402 * vv;
+   g = y - 0.344 * u - 0.714 * vv;
+   b = y + 1.772 * u;
+*/
+/*
+   y -= 16;
+   r = 1.164 * y + 1.596 * vv;
+   g = 1.164 * y - 0.392 * u - 0.813 * vv;
+   b = 1.164 * y + 2.017 * u;
+*/
+
+   // Clamp to 0..1
+   if (r < 0) r = 0;
+   if (g < 0) g = 0;
+   if (b < 0) b = 0;
+   if (r > 255) r = 255;
+   if (g > 255) g = 255;
+   if (b > 255) b = 255;
+
+   dest[0]= r;
+   dest[1]= g;
+   dest[2]= b;
+}
 int main(int argc, char*argv[])
 {
 	NCCAPixmap img;
@@ -263,7 +329,29 @@ int main(int argc, char*argv[])
 	if(instance->index>=0)
 		{
 		uint8_t *camData=instance->buffers[instance->index].start;
-		memcpy(img.data,camData,instance->buffers[instance->index].length);
+		switch(instance->format)
+		{
+		case RGB24:
+			memcpy(img.data,camData,instance->buffers[instance->index].length);
+			break;
+		case YUV422:
+			{
+			uint8_t *src=camData;
+			uint8_t *dest=img.data;
+			int i;
+			for(i=0;i<WIDTH*HEIGHT;i+=2)
+				{
+				YUV2RGB(src[0],src[1],src[3],dest);
+				dest+=3;
+				YUV2RGB(src[2],src[1],src[3],dest);
+				dest+=3;
+				src+=4;
+				}
+			break;
+			}
+		default:
+			exit(1);	
+		}
 		savePixmap(img,tmpFilename);
 		rename(tmpFilename,realFilename);
 		usleep(100000);

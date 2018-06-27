@@ -1,0 +1,67 @@
+#!/usr/bin/python3
+
+import os
+import sys
+from collections import deque
+import datetime
+import time
+import subprocess
+import socket
+hostname = socket.gethostname()
+
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
+#import numpy as np
+
+count=120
+width=320*1
+height=180*1
+if (sys.argv[0].endswith("-large")):
+    width=320*2
+    height=180*2
+	
+
+load_list = deque()
+
+# The callback for when a PUBLISH message is received from the server.
+def plotLoad(now,newLoad):
+    if(len(load_list) > count):
+        load_list.popleft()
+
+    load_list.append((now,float(load)*100))
+
+    xs = [x[0] for x in load_list]
+    ys = [x[1] for x in load_list]
+
+    plt.ioff()
+    fig=plt.figure()
+    DPI = fig.get_dpi()
+    fig.set_size_inches(width/float(DPI),height/float(DPI))
+    plt.plot(xs, ys)
+    plt.xlabel("Time")
+    plt.ylabel("CPU Load")
+    plt.legend([hostname], loc='upper left')
+    plt.savefig(tmpFilename)
+    plt.close(fig)
+    
+    #img.save(tmpFilename)
+    os.rename(tmpFilename, realFilename);
+	
+
+pid = os.getpid()
+realFilename=str(pid)+'.jpg'
+tmpFilename='X'+realFilename
+dir='/tmp/LIVE/'
+realFilename=dir+realFilename
+tmpFilename=dir+tmpFilename
+while True:
+	subP=subprocess.run(['w'], stdout=subprocess.PIPE)
+	allText=subP.stdout.decode('utf-8')
+	firstLine=allText.split('\n', 1)[0]
+	firstLine=firstLine.split()
+	load=firstLine[-3][:-1]
+	#print(load)
+	plotLoad(datetime.datetime.now(),load)
+	time.sleep(30)

@@ -171,3 +171,14 @@ if(vinfo.bits_per_pixel == 32)
 }
 
 #endif
+
+int windowWidth(Window window)
+{
+return vinfo.xres;
+}
+
+int windowHeight(Window window)
+{
+return vinfo.yres;
+}
+

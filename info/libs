@@ -1,7 +1,11 @@
 #PYTHON PLOTTING LIBRARY
 sudo apt-get install python3-matplotlib
 
+sudo apt-get install libx11-dev
+sudo apt-get install libtiff-dev
 sudo apt-get install python3-pip
+sudo apt-get install libav-tools
+sudo apt-get install fortune
 
 pip install paho-mqtt
 pip3 install paho-mqtt

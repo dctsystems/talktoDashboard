@@ -3,3 +3,5 @@ typedef void *Window;
 
 Window FBwindowInit(int w, int h, char*title, int flags);
 void FBscreenDraw(Window w, NCCAPixmap p);
+int windowWidth(Window);
+int windowHeight(Window);
