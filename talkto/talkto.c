@@ -32,7 +32,7 @@
 #define screenDraw FBscreenDraw
 #endif
 
-
+#include "watch.h"
 
 #define BlockSizeX 320
 #define BlockSizeY 180
@@ -142,6 +142,7 @@ void draw(int pid,char *filename)
     printf("Failed to find space for %s size:%d,%d\n",filename,imgW,imgH);
     resetAll();
     destroyPixmap(img);
+    draw(pid,filename);
 }
 
 void drawGrid()
@@ -228,6 +229,7 @@ int main(int argc, char*argv[])
 #endif
 	frameBuffer=newPixmap(BlockSizeX*BlocksX, BlockSizeY*BlocksY,3,8);
     
+	watchInit();
     
 	while(!UserQuit)
 		{
@@ -247,7 +249,7 @@ int main(int argc, char*argv[])
         scan();
         screenDraw(imgWindow,frameBuffer);
 
-	usleep(100000);
+	watchWait();
 	}
 	return 0;
 }

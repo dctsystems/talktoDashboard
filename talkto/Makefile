@@ -22,9 +22,9 @@ all:	talkto
 	./talkto
 
 
-talkto : talkto.o framebuffer.o
+talkto : talkto.o framebuffer.o watch.o
 	${CCLINK} ${CFLAGS} -o talkto \
-		talkto.o framebuffer.o\
+		talkto.o framebuffer.o watch.o\
 		${LIBS} ${WINLIBS} ${MATHLIB}
 
 clean :

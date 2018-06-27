@@ -1,0 +1,3 @@
+void watchInit();
+void watchWait();
+
