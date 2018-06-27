@@ -9,3 +9,7 @@ Then:
 
 sudo /etc/init.d/kbd restart
 
+
+OVERSCAN:
+/boot/config.txt
+enable: disable_overscan
