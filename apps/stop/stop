@@ -4,31 +4,37 @@ then
 	exit 1
 fi
 
-if ls /tmp/LIVE/[0-9]*.jpg >/dev/null 2>/dev/null
-then
-	TARGET=$1
-	if [ $TARGET = all ]
-	then
-		for i in /tmp/LIVE/[0-9]*.jpg
-		do
-			PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
-			pkill -P $PID
-			kill $PID
-		done
+TARGET=$1
 
-		sleep 1
-		rm -rf /tmp/LIVE/*
-	else
-		for i in /tmp/LIVE/[0-9]*.jpg
-		do
-			PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.jpg//`
-			ps $PID | grep -q $TARGET 
-			if [ $? -eq 0 ] 
-			then
+for EXT in jpg tiff bmp
+do
+	if ls /tmp/LIVE/[0-9]*.$EXT >/dev/null 2>/dev/null
+	then
+		if [ $TARGET = all ]
+		then
+			for i in /tmp/LIVE/[0-9]*.$EXT
+			do
+				PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.$EXT//`
 				pkill -P $PID
 				kill $PID
-				exit 0
-			fi
-		done
+				rm $i
+			done
+
+			sleep 1
+			rm -rf /tmp/LIVE/*
+		else
+			for i in /tmp/LIVE/[0-9]*.$EXT
+			do
+				PID=`echo $i | sed s!/tmp/LIVE/!! | sed s/.$EXT//`
+				ps $PID | grep -q $TARGET 
+				if [ $? -eq 0 ] 
+				then
+					pkill -P $PID
+					kill $PID
+					rm $i
+					exit 0
+				fi
+			done
+		fi
 	fi
-fi
+done
