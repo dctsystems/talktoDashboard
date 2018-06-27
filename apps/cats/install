@@ -9,5 +9,5 @@ then
 	exit
 fi
 
-cp -r catPics $DASHLIB
-cp -r cats $DASHBIN
+cp -r catPics $DASHLIB/catPics
+cp -r cats $DASHBIN/cats

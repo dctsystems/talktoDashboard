@@ -65,7 +65,9 @@ def on_message(client, userdata, msg):
     tsunami_list.append((json_string['timestamp'], json_string[tsunami_id]))
     oscillator_left_list.append((json_string['timestamp'], json_string[oscillator_left_id]))
     oscillator_right_list.append((json_string['timestamp'], json_string[oscillator_right_id]))
+    drawGraph()
 
+def drawGraph():
     tsunami_array = []
     oscillator_left_array = []
     oscillator_right_array = []
@@ -127,13 +129,13 @@ dir='/tmp/LIVE/'
 realFilename=dir+realFilename
 tmpFilename=dir+tmpFilename
 
-font = ImageFont.load_default()
-
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
 
 client.connect("the-firebird.net", 1883, 60)
+
+drawGraph()
 
 # Blocking call that processes network traffic, dispatches callbacks and
 # handles reconnecting.
