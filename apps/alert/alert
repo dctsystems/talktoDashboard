@@ -30,7 +30,7 @@ def on_message(client, userdata, msg):
                 os.remove(realFilename)
 
 pid = os.getpid()
-realFilename=str(pid)+'.jpg'
+realFilename=str(pid)+'.tiff'
 tmpFilename='X'+realFilename
 dir='/tmp/LIVE/'
 realFilename=dir+realFilename

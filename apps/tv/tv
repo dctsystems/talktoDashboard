@@ -1,27 +1,46 @@
-#!/bin/bash
+#!/usr/bin/python
 
-STREAM=http://eyetvnetstreamsat04004696.local./stream/channel1
+import os
+import subprocess as sp
+from PIL import Image
 
-if [ `basename $0` = tv-large ]
-then
-SIZE="-s 640x360"
-else
-SIZE="-s 320x180"
-fi
+import sys
+width=320
+height=180
+if (sys.argv[0].endswith("-large")):
+    width=320*2
+    height=180*2
 
 
-mkdir /tmp/LIVE/X$$
-avconv -loglevel error -i $STREAM -an -r 10 $SIZE -f image2 /tmp/LIVE/X$$/'%d.jpg' &
-F=1
-FF=2
-while true
-do
-if [ -f /tmp/LIVE/X$$/$FF.jpg ]
-	then
-		mv /tmp/LIVE/X$$/$F.jpg /tmp/LIVE/$$.jpg
-		F=$FF
-		FF=`expr $FF + 1`
-	else
-		sleep 0.1
-	fi
-done
+pid = os.getpid()
+realFilename=str(pid)+'.tiff'
+tmpFilename='X'+realFilename
+dir='/tmp/LIVE/'
+realFilename=dir+realFilename
+tmpFilename=dir+tmpFilename
+
+
+STREAM="http://eyetvnetstreamsat04004696.local./stream/channel1"
+SIZE=str(width)+"x"+str(height)
+command = [ "avconv",
+            '-i', STREAM,
+            '-loglevel', "error",
+            '-f', 'image2pipe',
+            '-pix_fmt', 'rgb24',
+            '-s', SIZE,
+            '-r', "10",
+            '-vcodec', 'rawvideo', '-']
+pipe = sp.Popen(command, stdout = sp.PIPE, bufsize=10**8)
+
+import numpy
+while 1:
+    raw_image = pipe.stdout.read(width*height*3)
+    imageA =  numpy.fromstring(raw_image, dtype='uint8')
+    imageA = imageA.reshape((height,width,3))
+    # throw away the data in the pipe's buffer.
+    img = Image.fromarray(imageA)
+    img.save(tmpFilename)
+    os.rename(tmpFilename, realFilename);
+
+
+pipe.stdout.flush()
