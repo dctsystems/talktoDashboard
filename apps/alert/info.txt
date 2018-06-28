@@ -1,0 +1,2 @@
+A simple demo of writing an app to monitor a feed
+and display a panel only when a condition is met
