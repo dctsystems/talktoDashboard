@@ -57,8 +57,8 @@ static void errno_exit(const char *s)
 #include <PixFileIO.h>
 
 #ifdef LARGE
-#define HEIGHT 360
-#define WIDTH 640
+#define HEIGHT 180*2
+#define WIDTH 320*2
 #else
 #define HEIGHT 180
 #define WIDTH 320
@@ -66,6 +66,7 @@ static void errno_exit(const char *s)
 
 #define RGB24 0
 #define YUV422 1
+#define CPIA 2
 struct Xwebcam_struct
 {
     int width;
@@ -141,14 +142,16 @@ void Xwebcam_init(struct Xwebcam_struct *instance)
         if (-1 == xioctl(instance->fd, VIDIOC_S_FMT, &fmt))
                 errno_exit("VIDIOC_S_FMT");
 
-/*
+
+#if 0
 	printf("%d x %d:%c%c%c%c\n", fmt.fmt.pix.width,fmt.fmt.pix.height,
 		(fmt.fmt.pix.pixelformat>>0)&0xff,
 		(fmt.fmt.pix.pixelformat>>8)&0xff,
 		(fmt.fmt.pix.pixelformat>>16)&0xff,
 		(fmt.fmt.pix.pixelformat>>24)&0xff
 		);
-*/
+#endif
+
 	switch(fmt.fmt.pix.pixelformat)
 	{
 	case V4L2_PIX_FMT_RGB24:
@@ -156,6 +159,9 @@ void Xwebcam_init(struct Xwebcam_struct *instance)
 		break;
 	case V4L2_PIX_FMT_YUYV:
 		instance->format=YUV422;
+		break;
+	case V4L2_PIX_FMT_CPIA1:
+		instance->format=CPIA;
 		break;
 	default:
 		fprintf(stderr,"Unknown Video Format:%c%c%c%c\n",
@@ -225,8 +231,8 @@ void Xwebcam_init(struct Xwebcam_struct *instance)
 	if (-1 == xioctl(instance->fd, VIDIOC_STREAMON, &type))
 		errno_exit("VIDIOC_STREAMON");
 
-    instance->width=WIDTH;
-    instance->height=HEIGHT;
+    instance->width=fmt.fmt.pix.width;
+    instance->height=fmt.fmt.pix.height;
     instance->index=-1;
 }
 
@@ -303,6 +309,148 @@ void YUV2RGB(uint8_t y,uint8_t u,uint8_t v,uint8_t *dest)
    dest[1]= g;
    dest[2]= b;
 }
+void rgbPixmapFromYuv422(NCCAPixmap destP,uint8_t *yuvSrc)
+	{
+	uint8_t *src=yuvSrc;
+	uint8_t *dest=destP.data;
+	int i;
+	int imgSize=destP.width*destP.height;
+	for(i=0;i<imgSize;i+=2)
+		{
+		YUV2RGB(src[0],src[1],src[3],dest);
+		dest+=3;
+		YUV2RGB(src[2],src[1],src[3],dest);
+		dest+=3;
+		src+=4;
+		}
+	}
+
+uint8_t *yuv422Buf=NULL;
+void rgbPixmapFromYuv420(NCCAPixmap img,uint8_t *camData)
+{
+#define FRAME_HEADER_SIZE 64
+#define MAGIC_0         0x19    /**< First header byte */
+#define MAGIC_1         0x68    /**< Second header byte */
+#define SUBSAMPLE_420      0
+#define SUBSAMPLE_422      1
+#define YUVORDER_YUYV      0
+#define YUVORDER_UYVY      1
+#define NOT_COMPRESSED     0
+#define COMPRESSED         1
+#define NO_DECIMATION      0
+#define DECIMATION_ENAB    1
+#define EOL             0xfd    /**< End Of Line marker */
+#define EOI             0xff    /**< End Of Image marker */
+
+	uint8_t *header=camData;
+	assert(header[0]==MAGIC_0);
+	assert(header[1]==MAGIC_1);
+	assert(header[17]==SUBSAMPLE_420);
+	assert(header[18]==YUVORDER_YUYV);
+	assert(header[28]==NOT_COMPRESSED ||header[28]==COMPRESSED);
+	assert(header[29]==NO_DECIMATION);
+	int compressed;
+	if(header[28]==COMPRESSED)
+		compressed=1;
+	else
+		compressed=0;
+	int maxW=img.width;
+	int maxH=img.height;
+
+	//printf("%dx%d\n",maxW,maxH);
+
+	int x,y;
+	uint8_t *srcLine=camData+FRAME_HEADER_SIZE;
+	for(y=0;y<maxH;y+=1)
+		{
+		int lineLength =srcLine[0]+(((int)srcLine[1])<<8);
+		//printf("Y:%d\n",y);
+		srcLine+=2;
+		int srcIndex=0;
+
+		int destIndex=0;
+		uint8_t *thisLineDest=yuv422Buf+2*img.width*y;
+		uint8_t *nextLineDest=yuv422Buf+2*img.width*(y+1);
+
+		if((y&1)==0)
+			{
+			//EVEN LINES WE HAVE FULL YUV
+			for(x=0;x<maxW;)
+				{
+				if(compressed && (srcLine[srcIndex]&1))
+					{
+					//Compressed
+				        int skip=srcLine[srcIndex]&0xfe;
+					skip>>=1;
+					//printf("Even Skip:%d\n",skip);
+					srcIndex++;
+					destIndex+=skip<<1;
+					x+=skip;
+					if(x>maxW)
+						{
+						srcIndex=lineLength-1;
+						break;
+						}
+					}
+				else
+					{
+					thisLineDest[destIndex+0]=srcLine[srcIndex+0];
+					thisLineDest[destIndex+1]=srcLine[srcIndex+1];
+					thisLineDest[destIndex+2]=srcLine[srcIndex+2];
+					thisLineDest[destIndex+3]=srcLine[srcIndex+3];
+
+					nextLineDest[destIndex+1]=srcLine[srcIndex+1];
+					nextLineDest[destIndex+3]=srcLine[srcIndex+3];
+					srcIndex+=4;
+					destIndex+=4;
+					x+=2;
+					}
+				}
+			}
+		else
+			{
+			//ODD LINES WE HAVE ONLY Y's
+			for(x=0;x<maxW;)
+				{       
+				if(compressed && (srcLine[srcIndex]&1))
+                                        {
+					//Compressed
+                                        int skip=srcLine[srcIndex]&0xfe;
+					skip>>=1;
+					//printf("Odd Skip:%d\n",skip);
+                                        srcIndex++;
+                                        destIndex+=skip<<1;
+                                        x+=skip;
+					if(x>maxW)
+						{
+						srcIndex=lineLength-1;
+						break;
+						}
+					}
+				else
+					{
+					thisLineDest[destIndex+0]=srcLine[srcIndex];
+					thisLineDest[destIndex+2]=srcLine[srcIndex+1];
+					srcIndex+=2;
+					destIndex+=4;
+					x+=2;
+					}
+				}
+			}
+		if(srcIndex!=lineLength-1)
+			break;
+
+		if(srcLine[srcIndex]==EOI)
+			break;
+
+		if(srcLine[srcIndex]!=EOL)
+			break;
+
+		srcLine+=lineLength;
+		}
+	rgbPixmapFromYuv422(img,yuv422Buf);
+}
+
 int main(int argc, char*argv[])
 {
 	NCCAPixmap img;
@@ -315,6 +463,10 @@ int main(int argc, char*argv[])
     struct Xwebcam_struct instance[1];
     Xwebcam_init(instance);
     img=newPixmap(instance->width,instance->height,3,8);
+
+    if(instance->format==CPIA)
+	yuv422Buf=malloc(instance->width*instance->height*2);//4 bytes=2 pixels!
+
     if(img.data==NULL)
 		{
 		exit(-1);
@@ -336,19 +488,15 @@ int main(int argc, char*argv[])
 			break;
 		case YUV422:
 			{
-			uint8_t *src=camData;
-			uint8_t *dest=img.data;
-			int i;
-			for(i=0;i<WIDTH*HEIGHT;i+=2)
-				{
-				YUV2RGB(src[0],src[1],src[3],dest);
-				dest+=3;
-				YUV2RGB(src[2],src[1],src[3],dest);
-				dest+=3;
-				src+=4;
-				}
+			rgbPixmapFromYuv422(img,camData);
 			break;
 			}
+		case CPIA:
+			{
+			rgbPixmapFromYuv420(img,camData);
+                        break;
+                        }
+
 		default:
 			exit(1);	
 		}

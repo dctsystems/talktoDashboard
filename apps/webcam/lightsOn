@@ -1,0 +1,3 @@
+#Turn on the lights on the Intel Play Microscope
+v4l2-ctl  --device=/dev/video0  --set-ctrl=illuminator_1=1
+v4l2-ctl  --device=/dev/video0  --set-ctrl=illuminator_2=1
