@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+
 #include <error.h>
 #include <errno.h>
+
+#include <sys/select.h>
+
+
+
 
 #ifdef __linux__
 #include <sys/inotify.h>
@@ -32,43 +39,52 @@ void watchWait()
 #define BUF_LEN        (1024 * (EVENT_SIZE + 16))
 
 char buf[BUF_LEN];
-int len, i = 0;
 
-usleep(20000);
-len = read (fd, buf, BUF_LEN);
-//#define DIAGNOSTICS
-#ifdef DIAGNOSTICS
-puts("NOTIFY");
-if (len <= 0)
+fd_set ReadSet;
+FD_ZERO(&ReadSet);
+FD_SET(fd, &ReadSet);
+
+struct timeval timeout={2,0};
+select(FD_SETSIZE, &ReadSet, NULL, NULL, &timeout);
+if(FD_ISSET(fd, &ReadSet))
 	{
-	if (errno == EINTR)
+	//int len =
+	read (fd, buf, BUF_LEN);
+
+//#define DIAGNOSTICS
+	#ifdef DIAGNOSTICS
+	puts("NOTIFY");
+	if (len <= 0)
 		{
-		/* need to reissue system call */
+		if (errno == EINTR)
+			{
+			/* need to reissue system call */
+			}
+		else
+			perror ("read");
 		}
 	else
-		perror ("read");
-	}
-else
-	{
-	i=0;
-	while (i < len)
 		{
-		struct inotify_event *event;
-		event = (struct inotify_event *) &buf[i];
-		if(event->len)// && event->name[0]!='X')
+		int i=0;
+		while (i < len)
 			{
-			printf ("%d:wd=%d mask=%u cookie=%u len=%u\n",
-				i,
-				event->wd, event->mask,
-				event->cookie, event->len);
+			struct inotify_event *event;
+			event = (struct inotify_event *) &buf[i];
+			if(event->len)// && event->name[0]!='X')
+				{
+				printf ("%d:wd=%d mask=%u cookie=%u len=%u\n",
+					i,
+					event->wd, event->mask,
+					event->cookie, event->len);
 
-			if (event->len)
-				printf ("name=%s\n", event->name);
+				if (event->len)
+					printf ("name=%s\n", event->name);
+				}
+			i += EVENT_SIZE + event->len;
 			}
-		i += EVENT_SIZE + event->len;
 		}
+	#endif
 	}
-#endif
 }
 #else
 void watchInit()
